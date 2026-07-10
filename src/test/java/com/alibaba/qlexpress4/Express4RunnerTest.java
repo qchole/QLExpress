@@ -11,10 +11,7 @@ import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.exception.QLTimeoutException;
 import com.alibaba.qlexpress4.inport.MyDesk;
-import com.alibaba.qlexpress4.runtime.Parameters;
-import com.alibaba.qlexpress4.runtime.QContext;
-import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.context.DynamicVariableContext;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
@@ -1967,5 +1964,25 @@ public class Express4RunnerTest {
         // Should return
         QLResult result = express4Runner.execute("CURRENT_TIME()", context, QLOptions.DEFAULT_OPTIONS);
         assertTrue((Long)result.getResult() > 0);
+    }
+    
+    @Test
+    public void testLessOp() {
+        Express4Runner express4Runner =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 1);
+        context.put("b", 2);
+        context.put("c", "c");
+        context.put("y", new MetaClass(List.class));
+        assertTrue((Boolean)express4Runner.execute("a < 2", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertFalse((Boolean)express4Runner.execute("c < \"a\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertTrue((Boolean)express4Runner.execute("a <> b", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(new ArrayList<>(),
+            express4Runner.execute("List<Integer> x = new ArrayList<>(); x", context, QLOptions.DEFAULT_OPTIONS)
+                .getResult());
+        assertEquals(Boolean.FALSE,
+            express4Runner.execute("List<> y;", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        
     }
 }
