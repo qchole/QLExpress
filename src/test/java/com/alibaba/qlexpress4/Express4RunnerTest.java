@@ -1225,6 +1225,33 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void getOutVarNamesForEachLocalVariableTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> actual = express4Runner
+            .getOutVarNames("a = [1,2,2]\n" + "for(i : a) {\n" + "  if(i > 2) { return 1; }\n" + "}\n" + "return 0;");
+        Assert.assertEquals(Collections.emptySet(), actual);
+    }
+    
+    @Test
+    public void getOutVarNamesForEachExternalVariablesTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> actual = express4Runner
+            .getOutVarNames("for(i : items) {\n" + "  if(i > threshold) { return i; }\n" + "}\n" + "return 0;");
+        Set<String> expected = new HashSet<>();
+        expected.add("items");
+        expected.add("threshold");
+        Assert.assertEquals(expected, actual);
+    }
+    
+    @Test
+    public void getOutVarNamesForEachTargetUsesOuterScopeTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> actual =
+            express4Runner.getOutVarNames("for(i : i) {\n" + "  if(i > 0) { return i; }\n" + "}\n" + "return 0;");
+        Assert.assertEquals(Collections.singleton("i"), actual);
+    }
+    
+    @Test
     public void getOutVarAttrsTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Assert.assertEquals(Arrays.asList("a.b.c", "a.b.d", "c.m"),
