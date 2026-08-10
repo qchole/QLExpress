@@ -2012,4 +2012,18 @@ public class Express4RunnerTest {
             express4Runner.execute("List<> y;", context, QLOptions.DEFAULT_OPTIONS).getResult());
         
     }
+    
+    @Test
+    public void compareTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Number> context = new HashMap<>();
+        context.put("a", 10);
+        assertEquals(false, express4Runner.execute("a < 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(false, express4Runner.execute("a <= 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a > 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a >= 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(false, express4Runner.execute("a == 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a != 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a <> 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+    }
 }
