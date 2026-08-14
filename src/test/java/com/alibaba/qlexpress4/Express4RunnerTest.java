@@ -653,6 +653,9 @@ public class Express4RunnerTest {
         assertFalse(
             (Boolean)express4Runner.execute("true && false && (1/0)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS)
                 .getResult());
+        assertFalse((Boolean)express4Runner
+            .execute("true and false and (1/0)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS)
+            .getResult());
         assertTrue(
             (Boolean)express4Runner
                 .execute("a = 1+1+1+1+1+1+1+1+1;" + "true && true && true",
@@ -666,11 +669,18 @@ public class Express4RunnerTest {
         assertTrue(
             (Boolean)express4Runner.execute("false || true || (1/0)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS)
                 .getResult());
+        assertTrue(
+            (Boolean)express4Runner.execute("false or true or (1/0)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS)
+                .getResult());
         assertTrue((Boolean)express4Runner
             .execute("(false && (1/0)) || true || (1/0)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS)
             .getResult());
+        assertTrue((Boolean)express4Runner
+            .execute("(false and (1/0)) or true or (1/0)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS)
+            .getResult());
         
         assertErrorCode(express4Runner, "true && (1/0)", "INVALID_ARITHMETIC");
+        assertErrorCode(express4Runner, "true and (1/0)", "INVALID_ARITHMETIC");
         
         // disable short circuit test
         QLOptions disableShortCircuitOp = QLOptions.builder().shortCircuitDisable(true).build();
@@ -680,6 +690,7 @@ public class Express4RunnerTest {
         assertFalse(
             (Boolean)express4Runner.execute("(true && false) || false", Collections.emptyMap(), disableShortCircuitOp)
                 .getResult());
+        assertErrorCode(express4Runner, "true or (1/0)", "INVALID_ARITHMETIC");
     }
     
     @Test
@@ -693,6 +704,42 @@ public class Express4RunnerTest {
         try {
             // execute when disable short circuit
             express4Runner.execute("false && (1/0)",
+                Collections.emptyMap(),
+                QLOptions.builder().shortCircuitDisable(true).build());
+            fail();
+        }
+        catch (QLException e) {
+            Assert.assertEquals("INVALID_ARITHMETIC", e.getErrorCode());
+            Assert.assertEquals("Division by zero", e.getReason());
+        }
+        
+        try {
+            // execute when disable short circuit
+            express4Runner.execute("false and (1/0)",
+                Collections.emptyMap(),
+                QLOptions.builder().shortCircuitDisable(true).build());
+            fail();
+        }
+        catch (QLException e) {
+            Assert.assertEquals("INVALID_ARITHMETIC", e.getErrorCode());
+            Assert.assertEquals("Division by zero", e.getReason());
+        }
+        
+        try {
+            // execute when disable short circuit
+            express4Runner.execute("true || (1/0)",
+                Collections.emptyMap(),
+                QLOptions.builder().shortCircuitDisable(true).build());
+            fail();
+        }
+        catch (QLException e) {
+            Assert.assertEquals("INVALID_ARITHMETIC", e.getErrorCode());
+            Assert.assertEquals("Division by zero", e.getReason());
+        }
+        
+        try {
+            // execute when disable short circuit
+            express4Runner.execute("true or (1/0)",
                 Collections.emptyMap(),
                 QLOptions.builder().shortCircuitDisable(true).build());
             fail();
